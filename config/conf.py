@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, BASE_DIR)
 TEMP_PATH = os.path.join(BASE_DIR, "temp")
+os.makedirs(TEMP_PATH, exist_ok=True)
 # [读取.env文件，转化为环境变量]
 load_dotenv()
 
