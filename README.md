@@ -15,7 +15,7 @@ coloring_pdf_filepath：输出的染色后的pdf文件存储路径。
 请求示例：
 
 ```shell
-curl --location 'http://120.0.0.0:5000/coloring_paragraph' \
+curl --location 'http://127.0.0.1:5000/paragraph_coloring' \
 
 --header 'Content-Type: application/json' \
 
@@ -42,52 +42,51 @@ curl --location 'http://120.0.0.0:5000/coloring_paragraph' \
   "message": "请求成功",  // 消息任意,如失败需体现报错情况
 
   "data": {
+      {
 
-​      {
+      "title": null,
 
-​      "title": None,
+      "paragraph": [
 
-​      "paragraph": [
+          {
 
-​            {
+            "type_": "正文",
 
-​            "type_": "正文",
+            "title": null,
 
-​            "title": None,
+            "content": "发行主体概况",
 
-​            "content": "发行主体概况",
+            "assist": "",
 
-​            "assist": "",
+            "markdown_content": "发行主体概况",
 
-​            "markdown_content": "发行主体概况",
+            "color": "#c77dc2",
 
-​            "color": "#c77dc2"
+            "table_detail": null
 
-​            "table_detail": None
+          },
 
-​            },
+          {
 
-​            {
+            "type_": "table",
 
-​            "type_": "table",
+            "title": null,
 
-​            "title": null,
+            "content": "纵向合并 1 3  2 3  横向合并 3  纵向加横向合并 3  7 6  ",
 
-​            "content": "纵向合并 1 3  2 3  横向合并 3  纵向加横向合并 3  7 6  ",
+                        "assist": "<table cellpadding=\"0\" cellspacing=\"0\"><tr><td rowspan=\"2\">纵向合并</td><td>1</td><td>3</td></tr><tr><td>2</td><td>3</td></tr><tr><td colspan=\"2\">横向合并</td><td>3</td></tr><tr><td colspan=\"2\">纵向加横向合并</td><td>3</td></tr><tr><td>7</td><td colspan=\"2\">6</td></tr></table>",
 
-​                        "assist": "<table cellpadding=\"0\" cellspacing=\"0\"><tr><td rowspan=\"2\">纵向合并</td><td>1</td><td>3</td></tr><tr><td>2</td><td>3</td></tr><tr><td colspan=\"2\">横向合并</td><td>3</td></tr><tr><td colspan=\"2\">纵向加横向合并</td><td>3</td></tr><tr><td>7</td><td colspan=\"2\">6</td></tr></table>",
+            "markdown_content": "| 纵向合并 | 1 | 3 |\n| --- | --- | --- |\n|  | 2 | 3 |\n| 横向合并 |  | 3 |\n| 纵向加横向合并 |  | 3 |\n| 7 |  | 6 |",
 
-​            "markdown_content": "| 纵向合并 | 1 | 3 |\n| --- | --- | --- |\n|  | 2 | 3 |\n| 横向合并 |  | 3 |\n| 纵向加横向合并 |  | 3 |\n| 7 |  | 6 |",
+            "color": null,
 
-​            "color": None
+            "table_detail": ...
 
-​            "table_detail": ...
+          }
 
-​    }
+        ]
 
-​        ]
-
-   }
+    }
 
 }
 ```
@@ -98,123 +97,120 @@ curl --location 'http://120.0.0.0:5000/coloring_paragraph' \
 
 ```json
 {
-  "is_sub_tabel": False, // 是不是嵌套的子表格
+  "is_sub_tabel": false, // 是不是嵌套的子表格
 
-  "row_num": "32" // 这个表格有32行
+  "row_num": "32", // 这个表格有32行
 
-  "columns": ["column1", "column2", ...]   // 所有列名
+  "columns": ["column1", "column2", ...],   // 所有列名
 
   "cells": [
 
-​			{
+      {
 
-​				"column": ["column1"]   // 当前单元格所在的列
+      "column": ["column1"],   // 当前单元格所在的列
 
-​				"HorizontalMerge": "FIRST",  // HorizontalMerge和VerticalMerge字段说明below
+      "HorizontalMerge": "FIRST",  // HorizontalMerge和VerticalMerge字段说明below
 
-​				"VerticalMerge": "NONE",
+      "VerticalMerge": "NONE",
 
-​				"Position": [0, 0]
+      "Position": [0, 0],
 
-​				"paragraph": [
+      "paragraph": [
 
-​								{
-                    ​            "type_": "正文",
+                    {
+            	        "type_": "正文",
 
-                    ​            "title": None,
+                      "title": null,
 
-                    ​            "content": "发行主体概况",
+                      "content": "发行主体概况",
 
-                    ​            "assist": "",
+                      "assist": "",
 
-                    ​            "markdown_content": "发行主体概况",
+                      "markdown_content": "发行主体概况",
 
-                    ​            "color": "#c77dc2"
+                      "color": "#c77dc2",
 
-                    ​            "table_detail": None
+                      "table_detail": null
 
-                    ​            },
+                      },
 
-                    ​            {
+                      {
 
-                    ​            "type_": "table",
+                      "type_": "table",
 
-                    ​            "title": null,
+                      "title": null,
 
-                    ​            "content": "...",
+                      "content": "...",
 
-                    ​            "assist": "<table></table>",
+                      "assist": "<table></table>",
 
-                    ​            "markdown_content": "|...|",
+                      "markdown_content": "|...|",
 
-                    ​            "color": None
+                      "color": null,
 
-                    ​            "table_detail": ...
+                      "table_detail": ...
 
-                    ​    }
-​								
+                      }
+            	
 
-​						]
+                ]
 
-​				},
+      },
 
-​				{
+      {
 
-​				"column": ["column1"]
+        "column": ["column1"],
 
-​				"HorizontalMerge": "PREVIOUS",
+        "HorizontalMerge": "PREVIOUS",
 
-​				"VerticalMerge": "NONE",
+        "VerticalMerge": "NONE",
 
-​				"Position": [0, 1]
+        "Position": [0, 1],
 
-​				"paragraph": [
+        "paragraph": [
 
-​								{
-                    ​            "type_": "...",
+                      {
+                      "type_": "...",
 
-                    ​            "title": None,
+                      "title": null,
 
-                    ​            "content": "...",
+                      "content": "...",
 
-                    ​            "assist": "",
+                      "assist": "",
 
-                    ​            "markdown_content": "...",
+                      "markdown_content": "...",
 
-                    ​            "color": "#c113c2"
+                      "color": "#c113c2"
 
-                    ​            "table_detail": None
+                      "table_detail": null
+                      },
 
-                    ​            },
+                      {
+                      "type_": "...",
 
-​								{
-                    ​            "type_": "...",
+                      "title": null,
 
-                    ​            "title": None,
+                      "content": "...",
 
-                    ​            "content": "...",
+                      "assist": "",
 
-                    ​            "assist": "",
+                      "markdown_content": "...",
 
-                    ​            "markdown_content": "...",
+                      "color": "#c22dc2"
 
-                    ​            "color": "#c22dc2"
+                      "table_detail": null
 
-                    ​            "table_detail": None
+                      }
 
-                    ​            }
+            ]
 
-​							]
+        }
 
-​				}
-
-​			]
+      ]
 }
 ```
 
 ####  **HorizontalMerge和VerticalMerge值说明：**
-
-HorizontalMerge和VerticalMerge有三种值：
 
 | 名字     | 说明                                           | 对应值 |
 | -------- | ---------------------------------------------- | ------ |
