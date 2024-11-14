@@ -101,8 +101,12 @@ class WordController(object):
         elif element.getNodeType() == NodeType.TABLE:
             word.parse_table(element, heading_map, color_manager, results)
             return
-        
-        for child in element.getChildNodes():
+        try:
+            child_nodes = element.getChildNodes()
+        except AttributeError as e:
+            logger.info(f"parse element [{node_type_name}] failed, {e}")
+            return
+        for child in child_nodes:
             if child.getNodeType() in (NodeType.RUN, NodeType.FOOTNOTE, NodeType.BOOKMARK_START, NodeType.BOOKMARK_END):
                 continue
             elif child.getNodeType() == NodeType.SHAPE:
@@ -115,13 +119,13 @@ class WordController(object):
                         "title": titles if titles else None,
                         "content": imgae_base64_str,
                         "assist": assist_content,
-                        "markdown_content": imgae_base64_str,
+                        "markdown_content": "",
                         "color": None,
                         "table_detail": table_detail
                         }])
             elif child.getNodeType() in (NodeType.PARAGRAPH, NodeType.STRUCTURED_DOCUMENT_TAG, NodeType.TABLE):
                 word.parse_element(child, heading_map, color_manager, results)
-    
+
     @staticmethod
     def to_markdown_table(table_element) -> str:
         table_element.convertToHorizontallyMergedCells()
