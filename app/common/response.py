@@ -173,6 +173,8 @@ class ResUtil(object):
             else:
                 http_code = 500
         else:
+            if code not in MESSAGE:
+                code = 1001
             http_code = MESSAGE[code]["http_code"]
             message = MESSAGE[code]["message"] if message is None else message
 
@@ -197,6 +199,7 @@ class ResUtil(object):
                 if pager_info:
                     response["data"].update(pager_info)
 
+            # 其他情况报错
             else:
                 raise TypeError("unsupported response data format")
 

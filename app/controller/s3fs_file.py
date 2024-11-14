@@ -1,15 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import os.path
-import traceback
 import urllib
 from pathlib import Path
 
 from loguru import logger
 from minio import Minio
-from minio.error import S3Error
+from minio.error import S3Error, MinioException
 
-from config.conf import S3_ENDPOINT, S3_KEY_ID, S3_KEY_SECRET, TEMP_PATH
+from config.conf import S3_ENDPOINT, S3_KEY_ID, S3_KEY_SECRET, TEMP_PATH, FS_TYPE
 
 
 class MinioTool():
@@ -26,18 +25,10 @@ class MinioTool():
         :return:
         """
         bucket_name, obj_path = self.parse_bucket_name(upload_path)
-        try:
-            # Make the bucket if it doesn't exist.
-            found = self.client.bucket_exists(bucket_name)
-            if not found:
-                # self.client.make_bucket(bucket_name)
-                # logger.info(f"Created bucket {bucket_name}")
-                logger.error(f"Bucket: {bucket_name} is not exists.")
-                raise
-            self.client.fput_object(bucket_name, obj_path, local_file)
-            logger.info(f"file: {upload_path} upload success")
-        except S3Error as exc:
-            logger.error(f"error occurred.{exc}")
+        if self.file_exists(upload_path):
+            raise MinioException(f"{upload_path} file is exist in S3. Please do not upload repeatedly.")
+        self.client.fput_object(bucket_name, obj_path, local_file)
+        logger.info(f"file: {upload_path} upload success")
 
     def delete_file(self, file_path):
         """
@@ -51,7 +42,7 @@ class MinioTool():
             self.client.remove_object(bucket_name, object_name)
             logger.info(f"Deleted {file_path} successfully")
         else:
-            logger.warning(f"Cannot delete {file_path}: file does not exist")
+            logger.warning(f"Cannot delete {file_path}")
 
     def file_exists(self, file_path: str) -> bool:
         """
@@ -63,11 +54,9 @@ class MinioTool():
         bucket_name, obj_path = self.parse_bucket_name(file_path)
         try:
             self.client.stat_object(bucket_name, obj_path)
-            logger.info(f"File {file_path} exists")
             return True
         except S3Error as exc:
             if exc.code == 'NoSuchKey':
-                logger.info(f"File {file_path} does not exist")
                 return False
             logger.error(f"Error occurred while checking if file exists: {exc}")
             return False
@@ -81,21 +70,12 @@ class MinioTool():
         :return: None
         """
         bucket_name, object_name = self.parse_bucket_name(file_path)
-        try:
-            self.client.fget_object(bucket_name, object_name, download_path)
-            logger.info(f"Downloaded {object_name} to {download_path} successfully")
-        except S3Error as exc:
-            logger.error(f"Error occurred while downloading: {exc}")
-
+        self.client.fget_object(bucket_name, object_name, download_path)
+        
     def read_file(self, file_path):
         bucket_name, object_name = self.parse_bucket_name(file_path)
-        try:
-            data = self.client.get_object(bucket_name, object_name)
-            return data.read().decode('utf-8')
-        except S3Error as exc:
-            print(traceback.print_exc())
-            logger.error(f"Error occurred while read file, file_path: {file_path}, error: {exc}")
-            return None
+        data = self.client.get_object(bucket_name, object_name)
+        return data.read().decode('utf-8')
 
     def write_file(self, upload_path: str, content: str):
         """
@@ -115,7 +95,7 @@ class MinioTool():
             logger.info(f"File {upload_path} successfully written to MinIO at path {upload_path}")
 
         except S3Error as exc:
-            logger.error(f"Error occurred while writing file to MinIO, file_path: {upload_path}, error: {exc}")
+            raise MinioException(f"Error occurred while writing file to MinIO, file_path: {upload_path}, error: {exc}")
         finally:
             if os.path.exists(temp_file):
                 os.remove(temp_file)
@@ -125,7 +105,11 @@ class MinioTool():
         path_obj = Path(s3_path)
         bucket_name = path_obj.parts[0]
         remaining_path = path_obj.relative_to(bucket_name)
-        return bucket_name, remaining_path
-    
+        return str(bucket_name), str(remaining_path)
 
-s3_controller = MinioTool()
+
+S3_controllers = {
+    "minio": MinioTool,
+    }
+
+s3_controller = S3_controllers[FS_TYPE]()
